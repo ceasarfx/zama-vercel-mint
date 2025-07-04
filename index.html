@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zama Secret Mint</title>
+  <script src="https://unpkg.com/@thirdweb-dev/sdk@3.12.41/dist/browser.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.6.2/ethers.umd.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #FFD700;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    h1 {
+      font-size: 3em;
+      margin-bottom: 0.2em;
+    }
+    p {
+      font-size: 1.2em;
+      margin-bottom: 2em;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 1em;
+      font-weight: bold;
+      background-color: #FFD700;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #ffc400;
+    }
+  </style>
+</head>
+<body>
+  <h1>Zama Secret Mint</h1>
+  <p>Claim your encrypted NFT below:</p>
+  <button id="connectButton">Connect Wallet</button>
+  <button id="mintButton" disabled>Mint NFT</button>
+
+  <script>
+    let provider;
+    let signer;
+    let sdk;
+    let contract;
+
+    async function init() {
+      if (!window.ethereum) {
+        alert("Please install MetaMask or a Web3 wallet.");
+        return;
+      }
+
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      signer = await provider.getSigner();
+      sdk = new thirdweb.ThirdwebSDK(signer);
+
+      const contractAddress = "0xB87D3335399f0AD77139D54ea5CaC6D8747043e5";
+      contract = await sdk.getContract(contractAddress, "nft-drop");
+
+      document.getElementById("mintButton").disabled = false;
+    }
+
+    async function mintNFT() {
+      try {
+        const tx = await contract.claim(1);
+        alert("✅ Minted successfully!");
+        console.log(tx);
+      } catch (err) {
+        alert("❌ Minting failed.");
+        console.error(err);
+      }
+    }
+
+    document.getElementById("connectButton").onclick = init;
+    document.getElementById("mintButton").onclick = mintNFT;
+  </script>
+</body>
+</html>
